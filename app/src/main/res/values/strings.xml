@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMAX Tracker</string>
+    <string name="twa_launch_url">https://classytaximoto-boop.github.io/tape-smax-simulator/Yamaha_Smax.html</string>
+    <string name="twa_host">classytaximoto-boop.github.io</string>
+</resources>

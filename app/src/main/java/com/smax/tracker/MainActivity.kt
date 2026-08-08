@@ -42,28 +42,7 @@ class MainActivity : LauncherActivity() {
         }
     }
 
-    private fun ensurePermissions() {
-        val missing = mutableListOf<String>()
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            missing.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            missing.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-
-        if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_FINE_LOCATION)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestBackgroundLocationIfNeeded()
-        }
-    }
+    
 
     private fun requestBackgroundLocationIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
@@ -78,7 +57,6 @@ class MainActivity : LauncherActivity() {
             )
         }
     }
-
     private fun requestBackgroundLocationIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
         val bgGranted = ContextCompat.checkSelfPermission(

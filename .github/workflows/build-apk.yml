@@ -23,6 +23,21 @@ jobs:
         with:
           gradle-version: 8.7
 
+      - name: Place icon and splash images
+        run: |
+          mkdir -p app/src/main/res/mipmap-mdpi
+          mkdir -p app/src/main/res/mipmap-hdpi
+          mkdir -p app/src/main/res/mipmap-xhdpi
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
+          mkdir -p app/src/main/res/drawable
+          cp ic_launcher.png app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp ic_launcher.png app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp ic_launcher.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp ic_launcher.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp ic_launcher.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp splash.png app/src/main/res/drawable/splash.png
+
       - name: Decode keystore
         env:
           SMAX_KEYSTORE_BASE64: ${{ secrets.SMAX_KEYSTORE_BASE64 }}

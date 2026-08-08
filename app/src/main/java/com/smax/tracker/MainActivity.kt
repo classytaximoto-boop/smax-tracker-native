@@ -1,7 +1,6 @@
 package com.smax.tracker
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -13,8 +12,7 @@ import com.google.androidbrowserhelper.trusted.LauncherActivity
 class MainActivity : LauncherActivity() {
 
     companion object {
-        private const val REQ_FINE_LOCATION = 1001
-        private const val REQ_BACKGROUND_LOCATION = 1002
+        private const val REQ_PERMISSIONS = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,20 +27,6 @@ class MainActivity : LauncherActivity() {
         super.onResume()
         try {
             injectAccumulatedTripIntoWebView()
-        } catch (e: Exception) {
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        try {
-            if (requestCode == REQ_FINE_LOCATION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                requestBackgroundLocationIfNeeded()
-            }
         } catch (e: Exception) {
         }
     }
@@ -64,41 +48,7 @@ class MainActivity : LauncherActivity() {
         }
 
         if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_FINE_LOCATION)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestBackgroundLocationIfNeeded()
-        }
-    }
-
-    private fun requestBackgroundLocationIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-        val bgGranted = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!bgGranted) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                REQ_BACKGROUND_LOCATION
-            )
-        }
-    }
-
-    fun startBackgroundTracking() {
-        try {
-            val intent = Intent(this, GpsForegroundService::class.java)
-            ContextCompat.startForegroundService(this, intent)
-        } catch (e: Exception) {
-        }
-    }
-
-    fun stopBackgroundTracking() {
-        try {
-            val intent = Intent(this, GpsForegroundService::class.java).apply {
-                action = GpsForegroundService.ACTION_STOP
-            }
-            startService(intent)
-        } catch (e: Exception) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_PERMISSIONS)
         }
     }
 

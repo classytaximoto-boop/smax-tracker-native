@@ -23,22 +23,7 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.Smax.Launcher">
 
-            <meta-data
-                android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="@string/twa_launch_url" />
-
-            <meta-data
-                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
-                android:resource="@color/statusBarColor" />
-
-            <meta-data
-                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
-                android:resource="@drawable/splash" />
-
-            <meta-data
-                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
-                android:resource="@color/backgroundColor" />
-
+            
             <meta-data
                 android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
                 android:value="com.smax.tracker.fileprovider" />

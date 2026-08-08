@@ -6,27 +6,17 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.androidbrowserhelper.trusted.LauncherActivity
 
 class MainActivity : LauncherActivity() {
 
-    private val requestFineLocation = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestBackgroundLocation.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
+    companion object {
+        private const val REQ_FINE_LOCATION = 1001
+        private const val REQ_BACKGROUND_LOCATION = 1002
+        private const val REQ_NOTIF = 1003
     }
-
-    private val requestBackgroundLocation = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { }
-
-    private val requestNotifPermission = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,25 +28,60 @@ class MainActivity : LauncherActivity() {
         injectAccumulatedTripIntoWebView()
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_FINE_LOCATION &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                REQ_BACKGROUND_LOCATION
+            )
+        }
+    }
+
     private fun ensurePermissions() {
         val fineGranted = ContextCompat.checkSelfPermission(
             this, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
         if (!fineGranted) {
-            requestFineLocation.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQ_FINE_LOCATION
+            )
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val bgGranted = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
-            if (!bgGranted) requestBackgroundLocation.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            if (!bgGranted) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    REQ_BACKGROUND_LOCATION
+                )
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val notifGranted = ContextCompat.checkSelfPermission(
                 this, Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
-            if (!notifGranted) requestNotifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            if (!notifGranted) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQ_NOTIF
+                )
+            }
         }
     }
 

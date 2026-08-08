@@ -34,11 +34,43 @@ class MainActivity : LauncherActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_FINE_LOCATION &&
-            grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        try {
+            if (requestCode == REQ_FINE_LOCATION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                requestBackgroundLocationIfNeeded()
+            }
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun ensurePermissions() {
+        val missing = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
         ) {
+            missing.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            missing.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_FINE_LOCATION)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestBackgroundLocationIfNeeded()
+        }
+    }
+
+    private fun requestBackgroundLocationIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        val bgGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!bgGranted) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
@@ -47,41 +79,17 @@ class MainActivity : LauncherActivity() {
         }
     }
 
-    private fun ensurePermissions() {
-        val fineGranted = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_FINE_LOCATION
+    private fun requestBackgroundLocationIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+        val bgGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-
-        if (!fineGranted) {
+        if (!bgGranted) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQ_FINE_LOCATION
+                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                REQ_BACKGROUND_LOCATION
             )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val bgGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!bgGranted) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    REQ_BACKGROUND_LOCATION
-                )
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val notifGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!notifGranted) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    REQ_NOTIF
-                )
-            }
         }
     }
 

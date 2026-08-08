@@ -15,17 +15,22 @@ class MainActivity : LauncherActivity() {
     companion object {
         private const val REQ_FINE_LOCATION = 1001
         private const val REQ_BACKGROUND_LOCATION = 1002
-        private const val REQ_NOTIF = 1003
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ensurePermissions()
+        try {
+            ensurePermissions()
+        } catch (e: Exception) {
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        injectAccumulatedTripIntoWebView()
+        try {
+            injectAccumulatedTripIntoWebView()
+        } catch (e: Exception) {
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -42,21 +47,29 @@ class MainActivity : LauncherActivity() {
         }
     }
 
-    
+    private fun ensurePermissions() {
+        val missing = mutableListOf<String>()
 
-    private fun requestBackgroundLocationIfNeeded() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-        val bgGranted = ContextCompat.checkSelfPermission(
-            this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        if (!bgGranted) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                REQ_BACKGROUND_LOCATION
-            )
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            missing.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            missing.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ_FINE_LOCATION)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestBackgroundLocationIfNeeded()
         }
     }
+
     private fun requestBackgroundLocationIfNeeded() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
         val bgGranted = ContextCompat.checkSelfPermission(
@@ -72,20 +85,27 @@ class MainActivity : LauncherActivity() {
     }
 
     fun startBackgroundTracking() {
-        val intent = Intent(this, GpsForegroundService::class.java)
-        ContextCompat.startForegroundService(this, intent)
+        try {
+            val intent = Intent(this, GpsForegroundService::class.java)
+            ContextCompat.startForegroundService(this, intent)
+        } catch (e: Exception) {
+        }
     }
 
     fun stopBackgroundTracking() {
-        val intent = Intent(this, GpsForegroundService::class.java).apply {
-            action = GpsForegroundService.ACTION_STOP
+        try {
+            val intent = Intent(this, GpsForegroundService::class.java).apply {
+                action = GpsForegroundService.ACTION_STOP
+            }
+            startService(intent)
+        } catch (e: Exception) {
         }
-        startService(intent)
     }
 
     private fun injectAccumulatedTripIntoWebView() {
         if (TrackingState.distanceKm <= 0.0) return
-        val webView = findWebView(window.decorView.rootView) ?: return
+        val root = window?.decorView?.rootView ?: return
+        val webView = findWebView(root) ?: return
 
         val deltaKm = TrackingState.distanceKm
 
@@ -112,4 +132,3 @@ class MainActivity : LauncherActivity() {
         }
         return null
     }
-}

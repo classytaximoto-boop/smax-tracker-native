@@ -9,6 +9,7 @@ import android.webkit.WebView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.androidbrowserhelper.trusted.LauncherActivity
+import android.webkit.JavascriptInterface
 
 class MainActivity : LauncherActivity() {
 
@@ -33,6 +34,25 @@ class MainActivity : LauncherActivity() {
         try {
             injectAccumulatedTripIntoWebView()
         } catch (e: Exception) {
+        }
+        try {
+            attachFuelBridge()
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun attachFuelBridge() {
+        val root = window?.decorView?.rootView ?: return
+        val webView = findWebView(root) ?: return
+        if (webView.tag == "fuel_bridge_attached") return
+        webView.addJavascriptInterface(FuelBridge(), "AndroidFuelBridge")
+        webView.tag = "fuel_bridge_attached"
+    }
+
+    inner class FuelBridge {
+        @JavascriptInterface
+        fun reportConsumption(litersPer100km: Double) {
+            TrackingState.consoL100 = litersPer100km
         }
     }
 

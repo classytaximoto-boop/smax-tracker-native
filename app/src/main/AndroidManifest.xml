@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" /><uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -29,7 +32,10 @@
             </intent-filter>
         </activity>
 
-<provider
+<service
+            android:name=".GpsForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="location" /><provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.smax.tracker.fileprovider"
             android:exported="false"

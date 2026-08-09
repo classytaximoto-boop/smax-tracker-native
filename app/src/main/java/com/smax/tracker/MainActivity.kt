@@ -27,6 +27,10 @@ class MainActivity : LauncherActivity() {
             startGpsService()
         } catch (e: Exception) {
         }
+        try {
+            attachFuelBridge()
+        } catch (e: Exception) {
+        }
     }
 
     override fun onResume() {

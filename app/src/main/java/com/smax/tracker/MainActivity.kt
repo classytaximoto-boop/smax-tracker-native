@@ -56,8 +56,11 @@ class MainActivity : LauncherActivity() {
                 if (webView != null && webView.tag != "fuel_bridge_attached") {
                     webView.addJavascriptInterface(FuelBridge(), "AndroidFuelBridge")
                     webView.tag = "fuel_bridge_attached"
-                } else if (webView == null && attempts < 15) {
+                    android.widget.Toast.makeText(this@MainActivity, "Pont attaché (essai $attempts)", android.widget.Toast.LENGTH_LONG).show()
+                } else if (webView == null && attempts < 20) {
                     handler.postDelayed(this, 500)
+                } else if (webView == null) {
+                    android.widget.Toast.makeText(this@MainActivity, "WebView jamais trouvé après 20 essais", android.widget.Toast.LENGTH_LONG).show()
                 }
             }
         }

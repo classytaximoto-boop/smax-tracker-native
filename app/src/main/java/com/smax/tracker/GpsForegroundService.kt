@@ -29,7 +29,7 @@ class GpsForegroundService : Service() {
 
             lastLocation?.let { prev ->
                 val deltaKm = prev.distanceTo(loc) / 1000.0
-                if (deltaKm in 0.0005..2.0) {
+                if (deltaKm in 0.0005..0.15) {
                     totalDistanceKm += deltaKm
                 }
             }

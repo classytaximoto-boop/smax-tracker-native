@@ -35,9 +35,12 @@ class MainActivity : LauncherActivity() {
 
     override fun onResume() {
         super.onResume()
+        android.widget.Toast.makeText(this, "onResume début", android.widget.Toast.LENGTH_SHORT).show()
         try {
             injectAccumulatedTripIntoWebView()
+            android.widget.Toast.makeText(this, "inject OK", android.widget.Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "crash inject: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
         }
     }
 

@@ -9,7 +9,6 @@ import android.webkit.WebView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.androidbrowserhelper.trusted.LauncherActivity
-import android.webkit.JavascriptInterface
 
 class MainActivity : LauncherActivity() {
 
@@ -27,7 +26,6 @@ class MainActivity : LauncherActivity() {
             startGpsService()
         } catch (e: Exception) {
         }
-    
     }
 
     override fun onResume() {
@@ -35,39 +33,6 @@ class MainActivity : LauncherActivity() {
         try {
             injectAccumulatedTripIntoWebView()
         } catch (e: Exception) {
-        }
-        try {
-            attachFuelBridge()
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun attachFuelBridge() {
-        val handler = android.os.Handler(mainLooper)
-        var attempts = 0
-        val tryAttach = object : Runnable {
-            override fun run() {
-                attempts++
-                val root = window?.decorView?.rootView
-                val webView = if (root != null) findWebView(root) else null
-                if (webView != null && webView.tag != "fuel_bridge_attached") {
-                    webView.addJavascriptInterface(FuelBridge(), "AndroidFuelBridge")
-                    webView.tag = "fuel_bridge_attached"
-                    android.widget.Toast.makeText(this@MainActivity, "Pont attaché (essai $attempts)", android.widget.Toast.LENGTH_LONG).show()
-                } else if (webView == null && attempts < 20) {
-                    handler.postDelayed(this, 500)
-                } else if (webView == null) {
-                    android.widget.Toast.makeText(this@MainActivity, "WebView jamais trouvé après 20 essais", android.widget.Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-        handler.post(tryAttach)
-    }
-
-    inner class FuelBridge {
-        @JavascriptInterface
-        fun reportConsumption(litersPer100km: Double) {
-            TrackingState.consoL100 = litersPer100km
         }
     }
 

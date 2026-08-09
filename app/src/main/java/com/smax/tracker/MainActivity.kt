@@ -18,13 +18,18 @@ class MainActivity : LauncherActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        android.widget.Toast.makeText(this, "onCreate début", android.widget.Toast.LENGTH_SHORT).show()
         try {
             ensurePermissions()
+            android.widget.Toast.makeText(this, "permissions OK", android.widget.Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "crash permissions: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
         }
         try {
             startGpsService()
+            android.widget.Toast.makeText(this, "service OK", android.widget.Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "crash service: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
         }
     }
 

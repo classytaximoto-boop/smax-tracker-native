@@ -42,11 +42,22 @@ class MainActivity : LauncherActivity() {
     }
 
     private fun attachFuelBridge() {
-        val root = window?.decorView?.rootView ?: return
-        val webView = findWebView(root) ?: return
-        if (webView.tag == "fuel_bridge_attached") return
-        webView.addJavascriptInterface(FuelBridge(), "AndroidFuelBridge")
-        webView.tag = "fuel_bridge_attached"
+        val handler = android.os.Handler(mainLooper)
+        var attempts = 0
+        val tryAttach = object : Runnable {
+            override fun run() {
+                attempts++
+                val root = window?.decorView?.rootView
+                val webView = if (root != null) findWebView(root) else null
+                if (webView != null && webView.tag != "fuel_bridge_attached") {
+                    webView.addJavascriptInterface(FuelBridge(), "AndroidFuelBridge")
+                    webView.tag = "fuel_bridge_attached"
+                } else if (webView == null && attempts < 15) {
+                    handler.postDelayed(this, 500)
+                }
+            }
+        }
+        handler.post(tryAttach)
     }
 
     inner class FuelBridge {
